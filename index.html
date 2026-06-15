@@ -11,8 +11,8 @@
     #search-bar { width: 90%; padding: 10px; margin-top: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
     .card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; }
-    .price { color: #ff5722; font-weight: bold; }
-    .btn-order { background: #25d366; color: white; border: none; padding: 8px 15px; border-radius: 10px; cursor: pointer; margin-top: 10px; }
+    .price { color: #ff5722; font-weight: bold; margin: 5px 0; }
+    .btn-order { background: #25d366; color: white; border: none; padding: 8px 15px; border-radius: 10px; cursor: pointer; margin-top: 10px; font-size: 0.8em; }
   </style>
 </head>
 <body>
@@ -28,19 +28,32 @@
   window.addEventListener('load', async () => {
     const grid = document.getElementById('products-grid');
     const searchBar = document.getElementById('search-bar');
+    
+    // تأكد من تحديث الرابط والمفتاح الخاص بك هنا
     const supabase = supabase.createClient('https://meaowbpwyliwajcqzmed.supabase.co', 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT');
     
     let allProducts = [];
 
-    const { data } = await supabase.from('phones').select('*');
-    allProducts = data || [];
+    async function loadData() {
+        const { data, error } = await supabase.from('phones').select('*');
+        if (error) {
+            grid.innerHTML = "خطأ في تحميل البيانات";
+            return;
+        }
+        allProducts = data || [];
+        render(allProducts);
+    }
 
     function render(list) {
+      if (list.length === 0) {
+          grid.innerHTML = "لا توجد نتائج.";
+          return;
+      }
       grid.innerHTML = list.map(p => `
         <div class="card">
           <h3>${p.title}</h3>
           <p class="price">${p.price_usd} $</p>
-          <button class="btn-order" onclick="alert('جاري تحويلك لطلب: ${p.title}')">طلب عبر الواتساب</button>
+          <button class="btn-order" onclick="alert('طلب ${p.title}')">طلب واتساب</button>
         </div>
       `).join('');
     }
@@ -50,11 +63,12 @@
       render(filtered);
     });
 
-    render(allProducts);
+    loadData();
   });
 </script>
 </body>
 </html>
+
 
 
 
