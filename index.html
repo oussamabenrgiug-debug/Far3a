@@ -8,11 +8,10 @@
   <style>
     body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
     header { background: #fff; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    #search-bar { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 20px; }
+    #search-bar { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 20px; outline: none; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
     .card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; }
     .price { color: #ff5722; font-weight: bold; margin: 5px 0; }
-    .btn-order { background: #25d366; color: white; border: none; padding: 8px 10px; border-radius: 10px; cursor: pointer; font-size: 0.75em; }
   </style>
 </head>
 <body>
@@ -21,52 +20,48 @@
   <h1>متجر سومة 🛒</h1>
   <input type="text" id="search-bar" placeholder="ابحث عن هاتف...">
 </header>
-<div class="grid" id="products-grid">جاري تحميل المنتجات...</div>
+<div class="grid" id="products-grid">جاري الاتصال...</div>
 
 <script>
-  // تهيئة Supabase
-  const supabase = supabase.createClient('https://meaowbpwyliwajcqzmed.supabase.co', 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT');
-  let allProducts = [];
+  // ننتظر تحميل كل شيء
+  window.onload = async () => {
+    const grid = document.getElementById('products-grid');
+    const searchBar = document.getElementById('search-bar');
+    
+    try {
+      // التحقق من وجود المكتبة
+      if (typeof supabase === 'undefined') throw new Error("لم يتم تحميل سكربت Supabase");
 
-  const grid = document.getElementById('products-grid');
-  const searchBar = document.getElementById('search-bar');
+      const supabase = supabase.createClient('https://meaowbpwyliwajcqzmed.supabase.co', 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT');
+      
+      const { data, error } = await supabase.from('phones').select('*');
+      if (error) throw error;
 
-  async function init() {
-    const { data, error } = await supabase.from('phones').select('*');
-    if (error) {
-      grid.innerHTML = "خطأ في الاتصال بقاعدة البيانات";
-      return;
+      let allProducts = data || [];
+
+      function render(list) {
+        grid.innerHTML = list.length > 0 ? list.map(p => `
+          <div class="card">
+            <h3>${p.title || 'بدون اسم'}</h3>
+            <p class="price">${p.price_usd ? p.price_usd + ' $' : 'غير متوفر'}</p>
+          </div>
+        `).join('') : "لا توجد نتائج";
+      }
+
+      searchBar.oninput = (e) => {
+        const filtered = allProducts.filter(p => p.title?.toLowerCase().includes(e.target.value.toLowerCase()));
+        render(filtered);
+      };
+
+      render(allProducts);
+    } catch (err) {
+      grid.innerHTML = "حدث خطأ: " + err.message;
     }
-    allProducts = data || [];
-    render(allProducts);
-  }
-
-  function render(list) {
-    if (list.length === 0) {
-      grid.innerHTML = "لا توجد نتائج مطابقة.";
-      return;
-    }
-    grid.innerHTML = list.map(p => `
-      <div class="card">
-        <h3>${p.title || 'بدون اسم'}</h3>
-        <p class="price">${p.price_usd ? p.price_usd + ' $' : 'غير متوفر'}</p>
-        <button class="btn-order" onclick="alert('تواصل للطلب: ${p.title}')">طلب واتساب</button>
-      </div>
-    `).join('');
-  }
-
-  searchBar.addEventListener('input', (e) => {
-    const filtered = allProducts.filter(p => 
-      p.title && p.title.toLowerCase().includes(e.target.value.toLowerCase())
-    );
-    render(filtered);
-  });
-
-  // تشغيل البرنامج
-  init();
+  };
 </script>
 </body>
 </html>
+
 
 
 
