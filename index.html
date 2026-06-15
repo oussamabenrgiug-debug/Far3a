@@ -1,54 +1,51 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>متجر سومة</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>متجر سومة - Sooma</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: sans-serif; background: #f4f4f4; text-align: center; padding: 20px; }
-    .product-card { background: white; margin: 15px auto; padding: 20px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 300px; }
-    h3 { color: #333; }
-    p { color: #e67e22; font-weight: bold; }
+    :root { --main-color: #ff5722; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f9f9f9; margin: 0; padding: 0; }
+    header { background: white; padding: 20px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding: 15px; }
+    .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: transform 0.2s; }
+    .card img { width: 100%; height: 150px; object-fit: contain; padding: 10px; }
+    .card-content { padding: 10px; text-align: center; }
+    .price { color: var(--main-color); font-weight: bold; font-size: 1.1em; }
+    h3 { font-size: 0.9em; margin: 5px 0; color: #333; }
   </style>
 </head>
 <body>
 
-  <h1>متجر سومة</h1>
-  <div id="products-grid">جاري تحميل الهواتف...</div>
+<header><h1>متجر سومة 🛒</h1></header>
 
-  <script>
-    window.addEventListener('load', async () => {
-      const grid = document.getElementById('products-grid');
-      
-      try {
-        const url = 'https://meaowbpwyliwajcqzmed.supabase.co';
-        const key = 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT';
-        
-        const supabaseClient = supabase.createClient(url, key);
-        
-        // جلب البيانات من جدول phones
-        const { data, error } = await supabaseClient.from('phones').select('*');
-        
-        if (error) {
-          grid.innerHTML = "خطأ في الاتصال: " + error.message;
-          return;
-        }
-        
-        if (data && data.length > 0) {
-          grid.innerHTML = data.map(p => `
-            <div class="product-card">
-              <h3>${p.title || 'بدون اسم'}</h3>
-              <p>السعر: ${p.price_usd ? p.price_usd + ' $' : 'غير متوفر'}</p>
-            </div>
-          `).join('');
-        } else {
-          grid.innerHTML = "لا توجد منتجات في المتجر.";
-        }
-      } catch (err) {
-        grid.innerHTML = "حدث خطأ غير متوقع.";
-      }
-    });
-  </script>
+<div class="container" id="products-grid">جاري تحميل المنتجات...</div>
+
+<script>
+  window.addEventListener('load', async () => {
+    const grid = document.getElementById('products-grid');
+    const url = 'https://meaowbpwyliwajcqzmed.supabase.co';
+    const key = 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT';
+    const supabase = supabase.createClient(url, key);
+
+    const { data, error } = await supabase.from('phones').select('*');
+    
+    if (error) { grid.innerHTML = "خطأ في الاتصال"; return; }
+
+    grid.innerHTML = data.map(p => `
+      <div class="card">
+        <img src="${p.image_url || 'https://via.placeholder.com/150'}" alt="${p.title}">
+        <div class="card-content">
+          <h3>${p.title}</h3>
+          <p class="price">${p.price_usd} $</p>
+        </div>
+      </div>
+    `).join('');
+  });
+</script>
 </body>
 </html>
 
