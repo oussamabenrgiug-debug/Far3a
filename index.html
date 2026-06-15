@@ -1,84 +1,39 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>متجر سومة - Premium</title>
+  <title>متجر سومة</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* تصميم Dark Mode Premium */
-    body { 
-        font-family: 'Segoe UI', sans-serif; 
-        background: #0f172a; /* خلفية داكنة فاخرة */
-        color: white;
-        margin: 0; padding: 0; 
-    }
-    header { 
-        background: rgba(30, 41, 59, 0.8); 
-        backdrop-filter: blur(10px); /* تأثير ضبابي للزجاج */
-        padding: 20px; text-align: center; 
-        border-bottom: 1px solid #334155;
-    }
-    #search-bar { 
-        width: 85%; padding: 12px; margin: 15px 0; 
-        border-radius: 25px; border: none;
-        background: #1e293b; color: white;
-        text-align: center;
-    }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
-    .card { 
-        background: rgba(30, 41, 59, 0.5); /* بطاقة شبه شفافة */
-        border: 1px solid rgba(255,255,255,0.1);
-        padding: 15px; border-radius: 20px; 
-        text-align: center;
-        transition: transform 0.3s ease;
-    }
-    .card:hover { transform: translateY(-5px); background: rgba(30, 41, 59, 0.8); }
-    .price { color: #38bdf8; font-weight: bold; margin: 10px 0; } /* لون أزرق كهربائي */
-    .btn-order { 
-        background: #f59e0b; color: #000; 
-        border: none; padding: 10px; width: 100%;
-        border-radius: 12px; font-weight: bold; cursor: pointer;
-    }
+    /* فرض التنسيق الداكن إجبارياً */
+    body { background-color: #0f172a !important; color: white !important; font-family: sans-serif; margin: 0; }
+    header { background: #1e293b !important; padding: 20px; text-align: center; }
+    .card { background: #334155 !important; margin: 15px; padding: 20px; border-radius: 15px; color: white !important; }
+    #search-bar { width: 90%; padding: 10px; margin: 10px auto; display: block; border-radius: 10px; }
   </style>
 </head>
 <body>
+  <header><h1>متجر سومة 🛒</h1></header>
+  <input type="text" id="search-bar" placeholder="ابحث...">
+  <div id="products-grid"></div>
 
-<header>
-  <h1>متجر سومة 🛒</h1>
-  <input type="text" id="search-bar" placeholder="ابحث عن هاتف...">
-</header>
-<div class="grid" id="products-grid">جاري تحميل المتجر...</div>
-
-<script>
-  window.addEventListener('load', async () => {
-    const grid = document.getElementById('products-grid');
-    const client = supabase.createClient('https://meaowbpwyliwajcqzmed.supabase.co', 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT');
-    
-    try {
+  <script>
+    window.addEventListener('load', async () => {
+      const client = supabase.createClient('https://meaowbpwyliwajcqzmed.supabase.co', 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT');
       const { data } = await client.from('phones').select('*');
-      let products = data || [];
-
-      function render(list) {
-        grid.innerHTML = list.map(p => `
-          <div class="card">
-            <h3>${p.title}</h3>
-            <p class="price">${p.price_usd} $</p>
-            <button class="btn-order" onclick="alert('طلب ${p.title}')">طلب الآن</button>
-          </div>
-        `).join('');
-      }
-
-      document.getElementById('search-bar').oninput = (e) => {
-        render(products.filter(p => p.title.toLowerCase().includes(e.target.value.toLowerCase())));
-      };
-
-      render(products);
-    } catch (err) { grid.innerHTML = "خطأ في تحميل المتجر."; }
-  });
-</script>
+      const grid = document.getElementById('products-grid');
+      
+      grid.innerHTML = data.map(p => `
+        <div class="card">
+          <h3>${p.title}</h3>
+          <p>السعر: ${p.price_usd} $</p>
+        </div>
+      `).join('');
+    });
+  </script>
 </body>
 </html>
-
 
 
 
