@@ -5,49 +5,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>متجر سومة</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    body { font-family: 'Segoe UI', sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
-    header { background: #fff; padding: 20px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .grid { display: flex; flex-direction: column; align-items: center; padding: 20px; }
-    .card { background: white; width: 90%; max-width: 400px; margin: 10px; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    h3 { margin-top: 0; color: #333; }
-    .price { color: #e67e22; font-weight: bold; font-size: 1.2em; }
-  </style>
 </head>
 <body>
 
-<header><h1>متجر سومة 🛒</h1></header>
-<div class="grid" id="products-grid">جاري تحميل المنتجات...</div>
+  <h1>متجر سومة 🛒</h1>
+  <div id="products-grid">جاري تحميل المنتجات...</div>
 
-<script>
-  window.addEventListener('load', async () => {
-    const grid = document.getElementById('products-grid');
-    const url = 'https://meaowbpwyliwajcqzmed.supabase.co';
-    const key = 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT';
-    
-    try {
-      const supabase = supabase.createClient(url, key);
-      const { data, error } = await supabase.from('phones').select('*');
+  <script>
+    // انتظار تحميل المكتبة وصفحة الويب بالكامل
+    window.addEventListener('load', async () => {
+      const grid = document.getElementById('products-grid');
       
-      if (error) throw error;
-      
-      if (data && data.length > 0) {
-        grid.innerHTML = data.map(p => `
-          <div class="card">
-            <h3>${p.title || 'منتج بدون اسم'}</h3>
-            <p class="price">${p.price_usd ? p.price_usd + ' $' : 'السعر غير متوفر'}</p>
-          </div>
-        `).join('');
-      } else {
-        grid.innerHTML = "لا توجد منتجات حالياً.";
+      try {
+        // التحقق من أن المكتبة تم تحميلها
+        if (typeof supabase === 'undefined') {
+          throw new Error("لم يتم تحميل مكتبة Supabase");
+        }
+
+        const url = 'https://meaowbpwyliwajcqzmed.supabase.co';
+        const key = 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT';
+        
+        // إنشاء العميل باسم مختلف لتفادي التضارب
+        const supabaseClient = supabase.createClient(url, key);
+        
+        // جلب البيانات
+        const { data, error } = await supabaseClient.from('phones').select('*');
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          grid.innerHTML = data.map(p => `
+            <div style="border: 1px solid #ddd; padding: 10px; margin: 10px; border-radius: 8px;">
+              <h3>${p.title || 'بدون اسم'}</h3>
+              <p>السعر: ${p.price_usd ? p.price_usd + ' $' : 'غير متوفر'}</p>
+            </div>
+          `).join('');
+        } else {
+          grid.innerHTML = "لا توجد منتجات.";
+        }
+      } catch (err) {
+        grid.innerHTML = "حدث خطأ: " + err.message;
       }
-    } catch (err) {
-      grid.innerHTML = "حدث خطأ: " + err.message;
-    }
-  });
-</script>
+    });
+  </script>
 </body>
 </html>
+
 
 
 
