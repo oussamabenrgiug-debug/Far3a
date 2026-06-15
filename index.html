@@ -2,59 +2,41 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>متجر سومة - Far'a</title>
+  <title>متجر سومة</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root {
-      --primary: #2c3e50;    /* الأزرق الداكن */
-      --secondary: #e67e22;  /* البرتقالي للاحترافية */
-      --light: #f4f7f6;
-    }
-    body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background-color: var(--light); }
-    
-    header { background: var(--primary); color: white; padding: 2rem; text-align: center; border-bottom: 4px solid var(--secondary); }
-    
-    nav { background: white; padding: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    nav a { color: var(--primary); margin: 0 15px; text-decoration: none; font-weight: bold; }
-    
-    .container { padding: 20px; max-width: 800px; margin: auto; }
-    
-    .product-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
-    
-    .product-card { 
-      background: white; padding: 20px; border-radius: 12px; 
-      border-right: 5px solid var(--secondary);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-      transition: transform 0.3s;
-    }
-    .product-card:hover { transform: translateY(-5px); }
+    body { font-family: sans-serif; background: #f4f4f4; text-align: center; margin: 0; padding: 20px; }
+    .product-card { background: white; margin: 20px auto; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); max-width: 400px; }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>متجر سومة</h1>
-  </header>
+  <h1>متجر سومة</h1>
+  <div id="products-grid">جاري تحميل المنتجات...</div>
 
-  <nav>
-    <a href="#">الرئيسية</a>
-    <a href="#">المنتجات</a>
-    <a href="#">تواصل معنا</a>
-  </nav>
+  <script>
+    // هذه المتغيرات سيتم تعويضها بواسطة Netlify تلقائياً
+    const SUPABASE_URL = process.env.SUPABASE_URL;
+    const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
-  <div class="container">
-    <h2 style="color: var(--primary);">أحدث المنتجات</h2>
-    <div class="product-grid">
-      <div class="product-card">
-        <h3>هاتف ذكي - 15 Pro</h3>
-        <p>مواصفات عالية وأداء متميز.</p>
-      </div>
-      <div class="product-card">
-        <h3>سيارة مستعملة - 2024</h3>
-        <p>بحالة الوكالة ومفحوصة بالكامل.</p>
-      </div>
-    </div>
-  </div>
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    async function getProducts() {
+      const { data, error } = await supabase.from('products').select('*');
+      const grid = document.getElementById('products-grid');
+      
+      if (error) {
+        grid.innerHTML = "حدث خطأ في الاتصال، يرجى التأكد من إعدادات الموقع.";
+        return;
+      }
+      grid.innerHTML = data.map(p => `
+        <div class="product-card">
+          <h3>${p.name}</h3>
+          <p>${p.description}</p>
+        </div>
+      `).join('');
+    }
+    getProducts();
+  </script>
 </body>
 </html>
