@@ -3,48 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <title>متجر سومة</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <style>
-    body { font-family: sans-serif; background: #f4f4f4; text-align: center; padding: 20px; }
-    .product-card { background: white; margin: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
   <h1>متجر سومة</h1>
-  <div id="products-grid">جاري تحميل البيانات...</div>
+  <div id="products-grid">جاري التحميل...</div>
 
   <script>
-    try {
-      const url = 'https://meaowbpwyliwajcqzmed.supabase.co';
-      const key = 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT';
-      const supabase = supabase.createClient(url, key);
-
-      async function getProducts() {
-        const grid = document.getElementById('products-grid');
-        const { data, error } = await supabase.from('cars').select('*');
+    // التأكد من تحميل المكتبة أولاً
+    window.addEventListener('load', async () => {
+      const grid = document.getElementById('products-grid');
+      
+      try {
+        const url = 'https://meaowbpwyliwajcqzmed.supabase.co';
+        const key = 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT';
+        
+        // إنشاء العميل
+        const supabaseClient = supabase.createClient(url, key);
+        
+        const { data, error } = await supabaseClient.from('cars').select('*');
         
         if (error) {
-          grid.innerHTML = "خطأ في القاعدة: " + error.message;
+          grid.innerHTML = "خطأ في الاتصال: " + error.message;
           return;
         }
         
         if (data && data.length > 0) {
           grid.innerHTML = data.map(p => `
-            <div class="product-card">
+            <div>
               <h3>${p.name || 'بدون اسم'}</h3>
               <p>${p.description || 'لا يوجد وصف'}</p>
             </div>
           `).join('');
         } else {
-          grid.innerHTML = "لا توجد سيارات في الجدول حالياً.";
+          grid.innerHTML = "لا توجد منتجات.";
         }
+      } catch (err) {
+        grid.innerHTML = "حدث خطأ غير متوقع: " + err.message;
       }
-      getProducts();
-    } catch (e) {
-      document.getElementById('products-grid').innerHTML = "خطأ في الكود: " + e.message;
-    }
+    });
   </script>
 </body>
 </html>
+
 
