@@ -3,53 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>متجر سومة</title>
+  <title>متجر سومة - تطبيق متكامل</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
+    header { background: #fff; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    #search-bar { width: 90%; padding: 10px; margin-top: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
+    .card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; }
+    .price { color: #ff5722; font-weight: bold; }
+    .btn-order { background: #25d366; color: white; border: none; padding: 8px 15px; border-radius: 10px; cursor: pointer; margin-top: 10px; }
+  </style>
 </head>
 <body>
 
+<header>
   <h1>متجر سومة 🛒</h1>
-  <div id="products-grid">جاري تحميل المنتجات...</div>
+  <input type="text" id="search-bar" placeholder="ابحث عن هاتف...">
+</header>
 
-  <script>
-    // انتظار تحميل المكتبة وصفحة الويب بالكامل
-    window.addEventListener('load', async () => {
-      const grid = document.getElementById('products-grid');
-      
-      try {
-        // التحقق من أن المكتبة تم تحميلها
-        if (typeof supabase === 'undefined') {
-          throw new Error("لم يتم تحميل مكتبة Supabase");
-        }
+<div class="grid" id="products-grid">جاري التحميل...</div>
 
-        const url = 'https://meaowbpwyliwajcqzmed.supabase.co';
-        const key = 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT';
-        
-        // إنشاء العميل باسم مختلف لتفادي التضارب
-        const supabaseClient = supabase.createClient(url, key);
-        
-        // جلب البيانات
-        const { data, error } = await supabaseClient.from('phones').select('*');
-        
-        if (error) throw error;
-        
-        if (data && data.length > 0) {
-          grid.innerHTML = data.map(p => `
-            <div style="border: 1px solid #ddd; padding: 10px; margin: 10px; border-radius: 8px;">
-              <h3>${p.title || 'بدون اسم'}</h3>
-              <p>السعر: ${p.price_usd ? p.price_usd + ' $' : 'غير متوفر'}</p>
-            </div>
-          `).join('');
-        } else {
-          grid.innerHTML = "لا توجد منتجات.";
-        }
-      } catch (err) {
-        grid.innerHTML = "حدث خطأ: " + err.message;
-      }
+<script>
+  window.addEventListener('load', async () => {
+    const grid = document.getElementById('products-grid');
+    const searchBar = document.getElementById('search-bar');
+    const supabase = supabase.createClient('https://meaowbpwyliwajcqzmed.supabase.co', 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT');
+    
+    let allProducts = [];
+
+    const { data } = await supabase.from('phones').select('*');
+    allProducts = data || [];
+
+    function render(list) {
+      grid.innerHTML = list.map(p => `
+        <div class="card">
+          <h3>${p.title}</h3>
+          <p class="price">${p.price_usd} $</p>
+          <button class="btn-order" onclick="alert('جاري تحويلك لطلب: ${p.title}')">طلب عبر الواتساب</button>
+        </div>
+      `).join('');
+    }
+
+    searchBar.addEventListener('input', (e) => {
+      const filtered = allProducts.filter(p => p.title.toLowerCase().includes(e.target.value.toLowerCase()));
+      render(filtered);
     });
-  </script>
+
+    render(allProducts);
+  });
+</script>
 </body>
 </html>
+
 
 
 
