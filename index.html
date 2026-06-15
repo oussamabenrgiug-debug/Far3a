@@ -5,19 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>متجر سومة - Far'a</title>
   <style>
-    body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
-    header { background: #2c3e50; color: white; padding: 1rem; text-align: center; }
-    nav { background: #34495e; padding: 0.5rem; text-align: center; }
-    nav a { color: white; margin: 0 15px; text-decoration: none; font-weight: bold; }
-    .container { padding: 20px; }
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-    .product-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
+    :root {
+      --primary: #2c3e50;    /* الأزرق الداكن */
+      --secondary: #e67e22;  /* البرتقالي للاحترافية */
+      --light: #f4f7f6;
+    }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background-color: var(--light); }
+    
+    header { background: var(--primary); color: white; padding: 2rem; text-align: center; border-bottom: 4px solid var(--secondary); }
+    
+    nav { background: white; padding: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    nav a { color: var(--primary); margin: 0 15px; text-decoration: none; font-weight: bold; }
+    
+    .container { padding: 20px; max-width: 800px; margin: auto; }
+    
+    .product-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    
+    .product-card { 
+      background: white; padding: 20px; border-radius: 12px; 
+      border-right: 5px solid var(--secondary);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      transition: transform 0.3s;
+    }
+    .product-card:hover { transform: translateY(-5px); }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>مرحباً بك في متجر سومة</h1>
+    <h1>متجر سومة</h1>
   </header>
 
   <nav>
@@ -27,19 +43,18 @@
   </nav>
 
   <div class="container">
-    <h2>أحدث المنتجات</h2>
+    <h2 style="color: var(--primary);">أحدث المنتجات</h2>
     <div class="product-grid">
       <div class="product-card">
-        <h3>هاتف ذكي</h3>
-        <p>أحدث الإصدارات</p>
+        <h3>هاتف ذكي - 15 Pro</h3>
+        <p>مواصفات عالية وأداء متميز.</p>
       </div>
       <div class="product-card">
-        <h3>سيارة مستعملة</h3>
-        <p>حالة ممتازة</p>
+        <h3>سيارة مستعملة - 2024</h3>
+        <p>بحالة الوكالة ومفحوصة بالكامل.</p>
       </div>
     </div>
   </div>
 
 </body>
 </html>
-
