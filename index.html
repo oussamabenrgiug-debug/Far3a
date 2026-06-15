@@ -4,14 +4,19 @@
   <meta charset="UTF-8">
   <title>متجر سومة</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: sans-serif; background: #f4f4f4; text-align: center; padding: 20px; }
+    .product-card { background: white; margin: 15px auto; padding: 20px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 300px; }
+    h3 { color: #333; }
+    p { color: #e67e22; font-weight: bold; }
+  </style>
 </head>
 <body>
 
   <h1>متجر سومة</h1>
-  <div id="products-grid">جاري التحميل...</div>
+  <div id="products-grid">جاري تحميل الهواتف...</div>
 
   <script>
-    // التأكد من تحميل المكتبة أولاً
     window.addEventListener('load', async () => {
       const grid = document.getElementById('products-grid');
       
@@ -19,10 +24,10 @@
         const url = 'https://meaowbpwyliwajcqzmed.supabase.co';
         const key = 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT';
         
-        // إنشاء العميل
         const supabaseClient = supabase.createClient(url, key);
         
-        const { data, error } = await supabaseClient.from('cars').select('*');
+        // جلب البيانات من جدول phones
+        const { data, error } = await supabaseClient.from('phones').select('*');
         
         if (error) {
           grid.innerHTML = "خطأ في الاتصال: " + error.message;
@@ -31,20 +36,21 @@
         
         if (data && data.length > 0) {
           grid.innerHTML = data.map(p => `
-            <div>
-              <h3>${p.name || 'بدون اسم'}</h3>
-              <p>${p.description || 'لا يوجد وصف'}</p>
+            <div class="product-card">
+              <h3>${p.title || 'بدون اسم'}</h3>
+              <p>السعر: ${p.price_usd ? p.price_usd + ' $' : 'غير متوفر'}</p>
             </div>
           `).join('');
         } else {
-          grid.innerHTML = "لا توجد منتجات.";
+          grid.innerHTML = "لا توجد منتجات في المتجر.";
         }
       } catch (err) {
-        grid.innerHTML = "حدث خطأ غير متوقع: " + err.message;
+        grid.innerHTML = "حدث خطأ غير متوقع.";
       }
     });
   </script>
 </body>
 </html>
+
 
 
