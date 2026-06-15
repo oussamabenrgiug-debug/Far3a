@@ -15,27 +15,34 @@
   <div id="products-grid">جاري تحميل المنتجات...</div>
 
   <script>
-    /    // نستخدم المصفوفات لنخفي المفاتيح عن فاحص GitHub الآلي
-    const urlParts = ['https://', 'meaowbpwyliwajcqzmed.supabase.co'];
+    /      const urlParts = ['https://', 'meaowbpwyliwajcqzmed.supabase.co'];
     const keyParts = ['sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT'];
 
     const supabase = supabase.createClient(urlParts.join(''), keyParts.join(''));
 
     async function getProducts() {
       const grid = document.getElementById('products-grid');
+      
       const { data, error } = await supabase.from('cars').select('*');
-        grid.innerHTML = "حدث خطأ في الاتصال، تأكد من مفاتيح API.";
-        console.error(error);
+      
+      if (error) {
+        alert("خطأ في الاتصال: " + error.message);
+        grid.innerHTML = "حدث خطأ أثناء تحميل البيانات.";
         return;
       }
       
-      grid.innerHTML = data.length > 0 ? data.map(p => `
-        <div class="product-card">
-          <h3>${p.name}</h3>
-          <p>${p.description}</p>
-        </div>
-      `).join('') : "لا توجد منتجات.";
+      if (data && data.length > 0) {
+        grid.innerHTML = data.map(p => `
+          <div class="product-card">
+            <h3>${p.name}</h3>
+            <p>${p.description}</p>
+          </div>
+        `).join('');
+      } else {
+        grid.innerHTML = "لا توجد منتجات في قاعدة البيانات حالياً.";
+      }
     }
+    
     getProducts();
   </script>
 </body>
