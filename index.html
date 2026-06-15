@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>متجر سومة - تطبيق متكامل</title>
+  <title>متجر سومة</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
-    header { background: #fff; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    #search-bar { width: 90%; padding: 10px; margin-top: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+    body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
+    header { background: #fff; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    #search-bar { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 20px; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
     .card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; }
     .price { color: #ff5722; font-weight: bold; margin: 5px 0; }
-    .btn-order { background: #25d366; color: white; border: none; padding: 8px 15px; border-radius: 10px; cursor: pointer; margin-top: 10px; font-size: 0.8em; }
+    .btn-order { background: #25d366; color: white; border: none; padding: 8px 10px; border-radius: 10px; cursor: pointer; font-size: 0.75em; }
   </style>
 </head>
 <body>
@@ -21,53 +21,53 @@
   <h1>متجر سومة 🛒</h1>
   <input type="text" id="search-bar" placeholder="ابحث عن هاتف...">
 </header>
-
-<div class="grid" id="products-grid">جاري التحميل...</div>
+<div class="grid" id="products-grid">جاري تحميل المنتجات...</div>
 
 <script>
-  window.addEventListener('load', async () => {
-    const grid = document.getElementById('products-grid');
-    const searchBar = document.getElementById('search-bar');
-    
-    // تأكد من تحديث الرابط والمفتاح الخاص بك هنا
-    const supabase = supabase.createClient('https://meaowbpwyliwajcqzmed.supabase.co', 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT');
-    
-    let allProducts = [];
+  // تهيئة Supabase
+  const supabase = supabase.createClient('https://meaowbpwyliwajcqzmed.supabase.co', 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT');
+  let allProducts = [];
 
-    async function loadData() {
-        const { data, error } = await supabase.from('phones').select('*');
-        if (error) {
-            grid.innerHTML = "خطأ في تحميل البيانات";
-            return;
-        }
-        allProducts = data || [];
-        render(allProducts);
+  const grid = document.getElementById('products-grid');
+  const searchBar = document.getElementById('search-bar');
+
+  async function init() {
+    const { data, error } = await supabase.from('phones').select('*');
+    if (error) {
+      grid.innerHTML = "خطأ في الاتصال بقاعدة البيانات";
+      return;
     }
+    allProducts = data || [];
+    render(allProducts);
+  }
 
-    function render(list) {
-      if (list.length === 0) {
-          grid.innerHTML = "لا توجد نتائج.";
-          return;
-      }
-      grid.innerHTML = list.map(p => `
-        <div class="card">
-          <h3>${p.title}</h3>
-          <p class="price">${p.price_usd} $</p>
-          <button class="btn-order" onclick="alert('طلب ${p.title}')">طلب واتساب</button>
-        </div>
-      `).join('');
+  function render(list) {
+    if (list.length === 0) {
+      grid.innerHTML = "لا توجد نتائج مطابقة.";
+      return;
     }
+    grid.innerHTML = list.map(p => `
+      <div class="card">
+        <h3>${p.title || 'بدون اسم'}</h3>
+        <p class="price">${p.price_usd ? p.price_usd + ' $' : 'غير متوفر'}</p>
+        <button class="btn-order" onclick="alert('تواصل للطلب: ${p.title}')">طلب واتساب</button>
+      </div>
+    `).join('');
+  }
 
-    searchBar.addEventListener('input', (e) => {
-      const filtered = allProducts.filter(p => p.title.toLowerCase().includes(e.target.value.toLowerCase()));
-      render(filtered);
-    });
-
-    loadData();
+  searchBar.addEventListener('input', (e) => {
+    const filtered = allProducts.filter(p => 
+      p.title && p.title.toLowerCase().includes(e.target.value.toLowerCase())
+    );
+    render(filtered);
   });
+
+  // تشغيل البرنامج
+  init();
 </script>
 </body>
 </html>
+
 
 
 
