@@ -2,63 +2,64 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>متجر سومة</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
-    header { background: #fff; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    #search-bar { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 20px; outline: none; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-    .card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; }
-    .price { color: #ff5722; font-weight: bold; margin: 5px 0; }
-  </style>
 </head>
 <body>
 
-<header>
   <h1>متجر سومة 🛒</h1>
   <input type="text" id="search-bar" placeholder="ابحث عن هاتف...">
-</header>
-<div class="grid" id="products-grid">جاري الاتصال...</div>
+  <div id="products-grid">جاري الاتصال...</div>
 
-<script>
-  // ننتظر تحميل كل شيء
-  window.onload = async () => {
-    const grid = document.getElementById('products-grid');
-    const searchBar = document.getElementById('search-bar');
-    
-    try {
-      // التحقق من وجود المكتبة
-      if (typeof supabase === 'undefined') throw new Error("لم يتم تحميل سكربت Supabase");
-
-      const supabase = supabase.createClient('https://meaowbpwyliwajcqzmed.supabase.co', 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT');
+  <script>
+    // 2. استخدام الدالة الجاهزة للمكتبة بعد التأكد من تحميلها
+    async function initStore() {
+      const grid = document.getElementById('products-grid');
+      const searchBar = document.getElementById('search-bar');
       
-      const { data, error } = await supabase.from('phones').select('*');
-      if (error) throw error;
-
-      let allProducts = data || [];
-
-      function render(list) {
-        grid.innerHTML = list.length > 0 ? list.map(p => `
-          <div class="card">
-            <h3>${p.title || 'بدون اسم'}</h3>
-            <p class="price">${p.price_usd ? p.price_usd + ' $' : 'غير متوفر'}</p>
-          </div>
-        `).join('') : "لا توجد نتائج";
+      // التأكد أن supabase معرفة
+      if (typeof supabase === 'undefined') {
+        grid.innerHTML = "خطأ: لم يتم تحميل مكتبة Supabase.";
+        return;
       }
 
-      searchBar.oninput = (e) => {
-        const filtered = allProducts.filter(p => p.title?.toLowerCase().includes(e.target.value.toLowerCase()));
-        render(filtered);
-      };
+      // 3. إنشاء العميل بمتغير جديد تماماً
+      const client = supabase.createClient(
+        'https://meaowbpwyliwajcqzmed.supabase.co', 
+        'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT'
+      );
 
-      render(allProducts);
-    } catch (err) {
-      grid.innerHTML = "حدث خطأ: " + err.message;
+      try {
+        const { data, error } = await client.from('phones').select('*');
+        if (error) throw error;
+
+        let allProducts = data || [];
+
+        function render(list) {
+          grid.innerHTML = list.length > 0 ? list.map(p => `
+            <div style="border:1px solid #ddd; margin:10px; padding:15px; border-radius:10px;">
+              <h3>${p.title || 'بدون اسم'}</h3>
+              <p>السعر: ${p.price_usd ? p.price_usd + ' $' : 'غير متوفر'}</p>
+            </div>
+          `).join('') : "لا توجد نتائج.";
+        }
+
+        searchBar.oninput = (e) => {
+          const filtered = allProducts.filter(p => 
+            p.title?.toLowerCase().includes(e.target.value.toLowerCase())
+          );
+          render(filtered);
+        };
+
+        render(allProducts);
+      } catch (err) {
+        grid.innerHTML = "حدث خطأ: " + err.message;
+      }
     }
-  };
-</script>
+
+    // تشغيل الدالة فور تحميل الصفحة
+    initStore();
+  </script>
 </body>
 </html>
 
