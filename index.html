@@ -2,66 +2,83 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>متجر سومة</title>
+  <title>متجر سومة - Premium</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* تصميم Dark Mode Premium */
+    body { 
+        font-family: 'Segoe UI', sans-serif; 
+        background: #0f172a; /* خلفية داكنة فاخرة */
+        color: white;
+        margin: 0; padding: 0; 
+    }
+    header { 
+        background: rgba(30, 41, 59, 0.8); 
+        backdrop-filter: blur(10px); /* تأثير ضبابي للزجاج */
+        padding: 20px; text-align: center; 
+        border-bottom: 1px solid #334155;
+    }
+    #search-bar { 
+        width: 85%; padding: 12px; margin: 15px 0; 
+        border-radius: 25px; border: none;
+        background: #1e293b; color: white;
+        text-align: center;
+    }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
+    .card { 
+        background: rgba(30, 41, 59, 0.5); /* بطاقة شبه شفافة */
+        border: 1px solid rgba(255,255,255,0.1);
+        padding: 15px; border-radius: 20px; 
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+    .card:hover { transform: translateY(-5px); background: rgba(30, 41, 59, 0.8); }
+    .price { color: #38bdf8; font-weight: bold; margin: 10px 0; } /* لون أزرق كهربائي */
+    .btn-order { 
+        background: #f59e0b; color: #000; 
+        border: none; padding: 10px; width: 100%;
+        border-radius: 12px; font-weight: bold; cursor: pointer;
+    }
+  </style>
 </head>
 <body>
 
+<header>
   <h1>متجر سومة 🛒</h1>
   <input type="text" id="search-bar" placeholder="ابحث عن هاتف...">
-  <div id="products-grid">جاري الاتصال...</div>
+</header>
+<div class="grid" id="products-grid">جاري تحميل المتجر...</div>
 
-  <script>
-    // 2. استخدام الدالة الجاهزة للمكتبة بعد التأكد من تحميلها
-    async function initStore() {
-      const grid = document.getElementById('products-grid');
-      const searchBar = document.getElementById('search-bar');
-      
-      // التأكد أن supabase معرفة
-      if (typeof supabase === 'undefined') {
-        grid.innerHTML = "خطأ: لم يتم تحميل مكتبة Supabase.";
-        return;
+<script>
+  window.addEventListener('load', async () => {
+    const grid = document.getElementById('products-grid');
+    const client = supabase.createClient('https://meaowbpwyliwajcqzmed.supabase.co', 'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT');
+    
+    try {
+      const { data } = await client.from('phones').select('*');
+      let products = data || [];
+
+      function render(list) {
+        grid.innerHTML = list.map(p => `
+          <div class="card">
+            <h3>${p.title}</h3>
+            <p class="price">${p.price_usd} $</p>
+            <button class="btn-order" onclick="alert('طلب ${p.title}')">طلب الآن</button>
+          </div>
+        `).join('');
       }
 
-      // 3. إنشاء العميل بمتغير جديد تماماً
-      const client = supabase.createClient(
-        'https://meaowbpwyliwajcqzmed.supabase.co', 
-        'sb_publishable_3pUDOGLuidmrvR7edS8JVw_q7JFsDwT'
-      );
+      document.getElementById('search-bar').oninput = (e) => {
+        render(products.filter(p => p.title.toLowerCase().includes(e.target.value.toLowerCase())));
+      };
 
-      try {
-        const { data, error } = await client.from('phones').select('*');
-        if (error) throw error;
-
-        let allProducts = data || [];
-
-        function render(list) {
-          grid.innerHTML = list.length > 0 ? list.map(p => `
-            <div style="border:1px solid #ddd; margin:10px; padding:15px; border-radius:10px;">
-              <h3>${p.title || 'بدون اسم'}</h3>
-              <p>السعر: ${p.price_usd ? p.price_usd + ' $' : 'غير متوفر'}</p>
-            </div>
-          `).join('') : "لا توجد نتائج.";
-        }
-
-        searchBar.oninput = (e) => {
-          const filtered = allProducts.filter(p => 
-            p.title?.toLowerCase().includes(e.target.value.toLowerCase())
-          );
-          render(filtered);
-        };
-
-        render(allProducts);
-      } catch (err) {
-        grid.innerHTML = "حدث خطأ: " + err.message;
-      }
-    }
-
-    // تشغيل الدالة فور تحميل الصفحة
-    initStore();
-  </script>
+      render(products);
+    } catch (err) { grid.innerHTML = "خطأ في تحميل المتجر."; }
+  });
+</script>
 </body>
 </html>
+
 
 
 
