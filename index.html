@@ -23,9 +23,7 @@
 
     async function getProducts() {
       const grid = document.getElementById('products-grid');
-      const { data, error } = await supabase.from('products').select('*');
-      
-      if (error) {
+      const { data, error } = await supabase.from('cars').select('*');
         grid.innerHTML = "حدث خطأ في الاتصال، تأكد من مفاتيح API.";
         console.error(error);
         return;
